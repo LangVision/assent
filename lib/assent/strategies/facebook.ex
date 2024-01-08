@@ -116,8 +116,14 @@ defmodule Assent.Strategy.Facebook do
       ]
 
       OAuth2.fetch_user(config, access_token, params)
+      |> maybe_parse_user_from_json()
     end
   end
+
+  defp maybe_parse_user_from_json({:ok, user}) when is_binary(user),
+    do: {:ok, Jason.decode!(user)}
+
+  defp maybe_parse_user_from_json(attrs), do: attrs
 
   defp appsecret_proof(access_token, client_secret) do
     :hmac
